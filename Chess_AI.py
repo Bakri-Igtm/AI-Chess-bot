@@ -1,6 +1,84 @@
 import random
 
 piece_score = {"K": 0, "Q": 10, "R": 5, "B": 3, "N": 3, "p": 1}
+king_scores = [
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [2, 2, 2, 2, 2, 2, 2, 2],
+    [3, 3, 3, 3, 3, 3, 3, 3],
+    [4, 4, 4, 4, 4, 4, 4, 4]
+]
+
+queen_scores = [
+    [1, 1, 1, 2, 2, 1, 1, 1],
+    [1, 2, 2, 2, 2, 2, 2, 1],
+    [1, 2, 3, 3, 3, 3, 2, 1],
+    [2, 2, 3, 3, 3, 3, 2, 2],
+    [2, 2, 3, 3, 3, 3, 2, 2],
+    [1, 2, 3, 3, 3, 3, 2, 1],
+    [1, 2, 2, 2, 2, 2, 2, 1],
+    [1, 1, 1, 2, 2, 1, 1, 1]
+]
+
+rook_scores = [
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [2, 2, 2, 2, 2, 2, 2, 2],
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [2, 2, 2, 2, 2, 2, 2, 2],
+    [1, 1, 1, 2, 2, 1, 1, 1]
+]
+
+bishop_scores = [
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 2, 2, 2, 2, 2, 2, 1],
+    [1, 2, 3, 3, 3, 3, 2, 1],
+    [1, 2, 3, 4, 4, 3, 2, 1],
+    [1, 2, 3, 4, 4, 3, 2, 1],
+    [1, 2, 3, 3, 3, 3, 2, 1],
+    [1, 2, 2, 2, 2, 2, 2, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1]
+]
+
+black_pawn_scores = [
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [3, 3, 3, 3, 3, 3, 3, 3],
+    [2, 2, 2, 1, 1, 2, 2, 2],
+    [1, 1, 2, 3, 3, 2, 1, 1],
+    [2, 2, 2, 3, 3, 2, 2, 2],
+    [2, 2, 3, 3, 3, 3, 2, 2],
+    [4, 4, 4, 4, 4, 4, 4, 4],
+    [8, 8, 8, 8, 8, 8, 8, 8]
+]
+
+white_pawn_scores = [
+    [8, 8, 8, 8, 8, 8, 8, 8],
+    [4, 4, 4, 4, 4, 4, 4, 4],
+    [2, 2, 3, 3, 3, 3, 2, 2],
+    [2, 2, 2, 3, 3, 2, 2, 2],
+    [1, 1, 2, 3, 3, 2, 1, 1],
+    [2, 2, 2, 1, 1, 2, 2, 2],
+    [3, 3, 3, 3, 3, 3, 3, 3],
+    [1, 1, 1, 1, 1, 1, 1, 1]
+]
+
+
+knight_scores = [[1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 2, 2, 2, 2, 2, 2, 1],
+                [1, 2, 3, 3, 3, 3, 2, 1],
+                [1, 2, 3, 4, 4, 3, 2, 1],
+                [1, 2, 3, 4, 4, 3, 2, 1],
+                [1, 2, 3, 3, 3, 3, 2, 1],
+                [1, 2, 2, 2, 2, 2, 2, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1]]
+piece_position_scores = {"K": king_scores, "N": knight_scores, "Q": queen_scores,
+                         "B": bishop_scores, "R": rook_scores,
+                         "bp": black_pawn_scores, "wp": white_pawn_scores}
 CHECKMATE = 1000
 STALEMATE = 0
 DEPTH = 2
@@ -46,14 +124,15 @@ def find_best_move(gstate, valid_moves):
     return best_player_move
 
 '''Helper method to make the first recursive call'''
-def find_best_move_(gstate, valid_moves):
+def find_best_move_(gstate, valid_moves, return_queue):
     global next_move, counter
     next_move = None
+    random.shuffle(valid_moves)
     # find_move_minmax(gstate, valid_moves, DEPTH, gstate.whiteToMove)
     counter = 0
     find_move_negamax_alpha_beta(gstate, valid_moves, DEPTH, -CHECKMATE, CHECKMATE, 1 if gstate.whiteToMove else -1)
     print(counter)
-    return next_move
+    return_queue.put(next_move)
 
 def find_move_minmax(gstate, valid_moves, depth, whiteToMove):
     global next_move
@@ -122,13 +201,13 @@ def find_move_negamax_alpha_beta(gstate, valid_moves, depth, alpha, beta, turn_m
             max_score = score
             if depth == DEPTH:
                 next_move = move
+                # print(score)
 
         gstate.undoMove()
         #pruning
         alpha = max(max_score, alpha)
         if alpha >= beta:
             break
-
     return max_score
 """
 A positive score is good for white, a negative score is good for black"""
@@ -142,13 +221,21 @@ def score_board(gstate):
         return STALEMATE
 
     score = 0
-    for row in gstate.board:
-        for square in row:
-            if square[0] == 'w':
-                score += piece_score[square[1]]
-            elif square[0] == 'b':
-                score -= piece_score[square[1]]
+    for row in range(len(gstate.board)):
+        for col in range(len(gstate.board[row])):
+            square = gstate.board[row][col]
+            if square != "--":
+                #score positionally
+                piece_position_score = 0
+                if square[1] == "p": #pawn
+                    piece_position_score = piece_position_scores[square][row][col]
+                else: #other pieces
+                    piece_position_score = piece_position_scores[square[1]][row][col]
 
+                if square[0] == 'w':
+                    score += piece_score[square[1]] + piece_position_score * 0.1
+                elif square[0] == 'b':
+                    score -= piece_score[square[1]] + piece_position_score * 0.1
     return score
 
 
@@ -163,5 +250,4 @@ def score_material(board):
                 score += piece_score[square[1]]
             elif square[0] == 'b':
                 score -= piece_score[square[1]]
-
     return score
