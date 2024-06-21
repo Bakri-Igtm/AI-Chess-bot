@@ -20,7 +20,7 @@ Initialize a global dict of images and will be called exactly once
 def load_images():
     pieces = ["wp", "wR", "wN", "wB", "wQ", "wK", "bp", "bR", "bN", "bB", "bQ", "bK"]
     for piece in pieces:
-        IMAGES[piece] = p.transform.scale(p.image.load("chess_images/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
+        IMAGES[piece] = p.transform.scale(p.image.load(piece + ".png"), (SQ_SIZE, SQ_SIZE))
     #We can access an image by using the dictionary
 
 """
@@ -31,7 +31,7 @@ async def main():
     p.init()
     screen = p.display.set_mode((BOARD_WIDTH + MOVE_LOG_PANEL_WIDTH, BOARD_HEIGHT))
     p.display.set_caption("Chess")
-    icon = p.image.load("chess_images/bp.png")
+    icon = p.image.load("bp.png")
     p.display.set_icon(icon)
     move_log_font = font = p.font.SysFont("comicsansms", 14, False, False)
     clock = p.time.Clock()
