@@ -803,6 +803,7 @@ class Move():
              self.place_captured = 'wp' if self.piece_moved == 'bp' else 'bp'
          #castling
          self.is_castle_move = is_castle_move
+         self.is_capture = self.place_captured != "--"
 
          self.move_ID = self.start_row * 1000 + self.start_col * 100 + self.end_row * 10 + self.end_col
 
@@ -820,3 +821,32 @@ class Move():
 
     def get_rank_file(self, row, col):
         return self.cols_to_files[col] + self.rows_to_ranks[row]
+
+    """overriding the str() function"""
+    def __str__(self):
+        #castle move
+        if self.is_castle_move:
+            # "O-O" #king side castle
+            # "O-O-O" #queen side castle
+            return "O-O" if self.end_col == 6 else "O-O-O"
+
+        end_square = self.get_rank_file(self.end_row, self.end_col)
+        #pawn moves
+        if self.piece_moved[1] == "p":
+            if self.is_capture:
+                return self.cols_to_files[self.start_col] + "x" + end_square
+            else:
+                #pawn promotion
+                if self.is_pawn_promotion:
+                    return self.cols_to_files[self.start_col] + "PQ" + end_square
+                else:
+                    return end_square
+
+        #two of the same type of piece moving to a square, Nbd2 if both knights can move to d2
+        #also adding + for check move, and #for checkmate move
+
+        move_string = self.piece_moved[1]
+        if self.is_capture:
+            move_string += 'x'
+        return move_string + end_square
+
